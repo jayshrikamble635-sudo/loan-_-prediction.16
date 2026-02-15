@@ -4,31 +4,24 @@ import joblib
 
 st.title("Loan Prediction App")
 
-# Load model and label encoders (PKL files)
 model = joblib.load("Loan_prediction_Model.pkl")
-label_encoders = joblib.load("label_encoder (4).pkl")
-
-st.subheader("Enter Applicant Details")
+encoders = joblib.load("label_encoder (4).pkl")
 
 gender = st.selectbox("Gender", ["Male", "Female"])
 education = st.selectbox("Education", ["Graduate", "Not Graduate"])
 income = st.number_input("ApplicantIncome", min_value=0)
 
 if st.button("Predict"):
-    input_df = pd.DataFrame({
+    df = pd.DataFrame({
         "Gender": [gender],
         "Education": [education],
         "ApplicantIncome": [income]
     })
 
-    # Apply encoding using saved encoders
-    for col in input_df.columns:
-        if col in label_encoders:
-            input_df[col] = label_encoders[col].transform(input_df[col])
+    for col in df.columns:
+        if col in encoders:
+            df[col] = encoders[col].transform(df[col])
 
-    prediction = model.predict(input_df)
+    result = model.predict(df)
 
-    if prediction[0] == 1:
-        st.write("Loan Approved")
-    else:
-        st.write("Loan Not Approved")
+    st.success("Loan Approved" if result[0] == 1 else "Loan Not Approved")
